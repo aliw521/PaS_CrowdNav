@@ -48,6 +48,7 @@ def main():
 	level = logging.INFO
 	for handler in logging.root.handlers[:]:
 		logging.root.removeHandler(handler)
+这段代码的作用是清空根日志记录器的处理器，可以用于在重新配置日志记录方式之前清理现有的处理器，防止日志输出重复或混乱。通常在进行日志配置更新时会使用类似的代码来清除先前的日志处理器。
 	logging.basicConfig(level=level, handlers=[stdout_handler, file_handler],
 						format='%(asctime)s, %(levelname)s: %(message)s', datefmt="%Y-%m-%d %H:%M:%S")\
 
@@ -75,6 +76,7 @@ def main():
 	summary_path = algo_args.output_dir+'/runs_gradient'
 	if not os.path.exists(summary_path):
 		os.makedirs(summary_path)
+该代码片段确保 summary_path 目录存在，并且可以正常存储算法执行结果的摘要文件。
 
 
 	# For fastest training: use GRU
@@ -89,6 +91,7 @@ def main():
 						 algo_args.gamma, device, allow_early_resets=True,
 						 envConfig=config, phase='val')
 
+代码创建了两个被包装和监控的 VecEnv 对象：envs 用于训练阶段，val_envs 用于验证阶段。这样可以在算法执行过程中使用这些环境对象进行训练和验证。
 
 	actor_critic = Policy(
 		envs.action_space,
@@ -140,6 +143,7 @@ def main():
 	recurrent_hidden_states = {}
 	for key in rollouts.recurrent_hidden_states:
 		recurrent_hidden_states[key] = rollouts.recurrent_hidden_states[key][0]
+		将 rollouts 对象中的循环隐藏状态存储到 recurrent_hidden_states 字典中，可用于后续的处理和使用。
 
 
 	episode_rewards = deque(maxlen=100)
@@ -193,6 +197,7 @@ def main():
 			next_value = actor_critic.get_value(
 				obs, rollouts_hidden_s,
 				masks).detach()
+		代码计算了下一个状态的估值，并将其保存在 next_value 变量中，用于后续计算优势和更新模型。
 
 
 		rollouts.compute_returns(next_value, algo_args.gamma,
